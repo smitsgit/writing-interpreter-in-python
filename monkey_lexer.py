@@ -70,6 +70,12 @@ class TokenTypes:
     FUNCTION = "FUNCTION"
 
 
+keywords = {
+    "let": Token(TokenTypes.LET, "let"),
+    "fn": Token(TokenTypes.FUNCTION, "fn"),
+}
+
+
 class Lexer:
     def __init__(self, input: str):
         self._input = input
@@ -78,29 +84,84 @@ class Lexer:
         self.chr = None
 
     def next_token(self) -> Token:
-        if self.read_position <= len(self._input) != 0:
-            self.chr = self._input[self.read_position]
+        self.skipNone()
+        self.skip_whitespace()
+        tok: TokenType = None
+        if self.chr == '=':
+            tok = Token(TokenTypes.EQUALS, self.chr)
+        elif self.chr == '+':
+            tok = Token(TokenTypes.PLUS, self.chr)
+        elif self.chr == '(':
+            tok = Token(TokenTypes.LPAREN, self.chr)
+        elif self.chr == ')':
+            tok = Token(TokenTypes.RPAREN, self.chr)
+        elif self.chr == '{':
+            tok = Token(TokenTypes.LBRACE, self.chr)
+        elif self.chr == '}':
+            tok = Token(TokenTypes.RBRACE, self.chr)
+        elif self.chr == ',':
+            tok = Token(TokenTypes.COMMA, self.chr)
+        elif self.chr == ';':
+            tok = Token(TokenTypes.SEMICOLON, self.chr)
+        elif self.chr == 0:
+            tok = Token(TokenTypes.EOF, "")
+        else:
+            if self.is_letter(self.chr):
+                identifier = self.read_identifier()
+                if identifier in keywords:
+                    return keywords[identifier]
+                else:
+                    return Token(TokenTypes.IDENT, identifier)
+            elif self.is_number(self.chr):
+                number = self.read_num()
+                return Token(TokenTypes.INT, number)
+            else:
+                return Token(TokenTypes.ILLEGAL, self.chr)
+        self.read_chr()
+        return tok
+
+    def read_chr(self):
+        if self.read_position < len(self._input) != 0:
+            try:
+                self.chr = self._input[self.read_position]
+            except IndexError as e:
+                print(e)
         else:
             self.chr = 0
-
         self.position = self.read_position
         self.read_position += 1
 
-        if self.chr == '=':
-            return Token(TokenTypes.EQUALS, "=")
-        if self.chr == '+':
-            return Token(TokenTypes.PLUS, "+")
-        if self.chr == '(':
-            return Token(TokenTypes.LPAREN, "(")
-        if self.chr == ')':
-            return Token(TokenTypes.RPAREN, ")")
-        if self.chr == '{':
-            return Token(TokenTypes.LBRACE, "{")
-        if self.chr == '}':
-            return Token(TokenTypes.RBRACE, "}")
-        if self.chr == ',':
-            return Token(TokenTypes.COMMA, ",")
-        if self.chr == ';':
-            return Token(TokenTypes.SEMICOLON, ";")
-        if self.chr == 0:
-            return Token(TokenTypes.EOF, "")
+    def read_identifier(self) -> str:
+        position = self.position
+        while True:
+            if self.is_letter(self.chr):
+                self.read_chr()
+                continue
+            else:
+                break
+
+        return self._input[position: self.position]
+
+    def skip_whitespace(self):
+        while self.chr in [' ', '\t', '\n', '\r']:
+            self.read_chr()
+
+    def is_letter(self, chr: str) -> bool:
+        return 'a' <= chr <= 'z' or 'A' <= chr <= 'Z' or chr == '_'
+
+    def is_number(self, chr: str) -> bool:
+        return chr.isdigit()
+
+    def read_num(self):
+        position = self.position
+        while True:
+            if self.is_number(self.chr):
+                self.read_chr()
+                continue
+            else:
+                break
+        return self._input[position: self.position]
+
+    def skipNone(self):
+        if self.chr is None:
+            self.read_chr()
