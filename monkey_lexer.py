@@ -73,11 +73,21 @@ class TokenTypes:
     # keywords
     LET = "LET"
     FUNCTION = "FUNCTION"
+    FALSE = "FALSE"
+    TRUE = "TRUE"
+    IF = "IF"
+    ELSE = "ELSE"
+    RETURN = "RETURN"
 
 
 keywords = {
     "let": Token(TokenTypes.LET, "let"),
     "fn": Token(TokenTypes.FUNCTION, "fn"),
+    "true": Token(TokenTypes.TRUE, "true"),
+    "false": Token(TokenTypes.FALSE, "false"),
+    "if": Token(TokenTypes.IF, "if"),
+    "else": Token(TokenTypes.ELSE, "else"),
+    "return": Token(TokenTypes.RETURN, "return"),
 }
 
 

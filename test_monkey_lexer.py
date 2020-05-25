@@ -54,6 +54,12 @@ let ten = 10;
    
    !-/*5;
    5 < 10 > 5;
+   
+   if (5 < 10) {
+       return true;
+   } else {
+       return false;
+   }
    """
 
     lexer = Lexer(data)
@@ -98,9 +104,6 @@ let ten = 10;
     assert lexer.next_token() == Token(TokenTypes.RPAREN, ")")
     assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
 
-    # !- / * 5;
-    # 5 < 10 > 5;
-
     assert lexer.next_token() == Token(TokenTypes.BANG, "!")
     assert lexer.next_token() == Token(TokenTypes.MINUS, "-")
     assert lexer.next_token() == Token(TokenTypes.SLASH, "/")
@@ -114,4 +117,26 @@ let ten = 10;
     assert lexer.next_token() == Token(TokenTypes.GT, ">")
     assert lexer.next_token() == Token(TokenTypes.INT, "5")
     assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
+
+    # if (5 < 10) {
+    # return true;
+    # } else {
+    # return false; }
+    assert lexer.next_token() == Token(TokenTypes.IF, "if")
+    assert lexer.next_token() == Token(TokenTypes.LPAREN, "(")
+    assert lexer.next_token() == Token(TokenTypes.INT, "5")
+    assert lexer.next_token() == Token(TokenTypes.LT, "<")
+    assert lexer.next_token() == Token(TokenTypes.INT, "10")
+    assert lexer.next_token() == Token(TokenTypes.RPAREN, ")")
+    assert lexer.next_token() == Token(TokenTypes.LBRACE, "{")
+    assert lexer.next_token() == Token(TokenTypes.RETURN, "return")
+    assert lexer.next_token() == Token(TokenTypes.TRUE, "true")
+    assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
+    assert lexer.next_token() == Token(TokenTypes.RBRACE, "}")
+    assert lexer.next_token() == Token(TokenTypes.ELSE, "else")
+    assert lexer.next_token() == Token(TokenTypes.LBRACE, "{")
+    assert lexer.next_token() == Token(TokenTypes.RETURN, "return")
+    assert lexer.next_token() == Token(TokenTypes.FALSE, "false")
+    assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
+    assert lexer.next_token() == Token(TokenTypes.RBRACE, "}")
     assert lexer.next_token() == Token(TokenTypes.EOF, "")
