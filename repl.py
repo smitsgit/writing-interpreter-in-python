@@ -15,15 +15,12 @@ def main(argv):
     suggestions = WordCompleter([item for item in monkey_lexer.keywords], ignore_case=True)
     lexer = load_lexer_from_file("/Users/smital/PycharmProjects/writing-interpreter-in-python/monkey_pyg_lexer.py", "MonkeyLexer")
     while True:
-        # Todo: lexer=lexer Get the custom lexer working for monkey language
+        # TODO: lexer=lexer Get the custom lexer working for monkey language
         data = prompt(f"{PROMPT}",
                       history=FileHistory('history.txt'),
                       auto_suggest=AutoSuggestFromHistory(),
                       completer=suggestions,
-                      multiline=True
-
-
-                      )
+                      multiline=True)
         lexer = monkey_lexer.Lexer(data)
         for item in lexer:
             print(item)
