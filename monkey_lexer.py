@@ -54,7 +54,12 @@ class TokenTypes:
     # operators
     PLUS = "+"
     MINUS = "-"
-    EQUALS = "="
+    ASSIGN = "="
+    BANG = "!"
+    ASTERISK = "*"
+    SLASH = "/"
+    LT = "<"
+    GT = ">"
 
     # Delimiters
     COMMA = ","
@@ -88,9 +93,11 @@ class Lexer:
         self.skip_whitespace()
         tok: TokenType = None
         if self.chr == '=':
-            tok = Token(TokenTypes.EQUALS, self.chr)
+            tok = Token(TokenTypes.ASSIGN, self.chr)
         elif self.chr == '+':
             tok = Token(TokenTypes.PLUS, self.chr)
+        elif self.chr == '-':
+            tok = Token(TokenTypes.MINUS, self.chr)
         elif self.chr == '(':
             tok = Token(TokenTypes.LPAREN, self.chr)
         elif self.chr == ')':
@@ -103,6 +110,16 @@ class Lexer:
             tok = Token(TokenTypes.COMMA, self.chr)
         elif self.chr == ';':
             tok = Token(TokenTypes.SEMICOLON, self.chr)
+        elif self.chr == '!':
+            tok = Token(TokenTypes.BANG, self.chr)
+        elif self.chr == '*':
+            tok = Token(TokenTypes.ASTERISK, self.chr)
+        elif self.chr == '/':
+            tok = Token(TokenTypes.SLASH, self.chr)
+        elif self.chr == '<':
+            tok = Token(TokenTypes.LT, self.chr)
+        elif self.chr == '>':
+            tok = Token(TokenTypes.GT, self.chr)
         elif self.chr == 0:
             tok = Token(TokenTypes.EOF, "")
         else:
