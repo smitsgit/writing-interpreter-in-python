@@ -42,7 +42,6 @@ def test_lexer_parses_bare_monkey_syntax():
     assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
 
 
-@pytest.mark.skip
 def test_lexer_parses_minimum_monkey_syntax():
     data = """let five = 5;
 let ten = 10;
@@ -67,11 +66,12 @@ let ten = 10;
 
     assert lexer.next_token() == Token(TokenTypes.LET, "let")
     assert lexer.next_token() == Token(TokenTypes.IDENT, "add")
+    assert lexer.next_token() == Token(TokenTypes.EQUALS, "=")
     assert lexer.next_token() == Token(TokenTypes.FUNCTION, "fn")
     assert lexer.next_token() == Token(TokenTypes.LPAREN, "(")
     assert lexer.next_token() == Token(TokenTypes.IDENT, "x")
     assert lexer.next_token() == Token(TokenTypes.COMMA, ",")
-    assert lexer.next_token() == Token(TokenTypes.IDENT, "Y")
+    assert lexer.next_token() == Token(TokenTypes.IDENT, "y")
     assert lexer.next_token() == Token(TokenTypes.RPAREN, ")")
     assert lexer.next_token() == Token(TokenTypes.LBRACE, "{")
     assert lexer.next_token() == Token(TokenTypes.IDENT, "x")
