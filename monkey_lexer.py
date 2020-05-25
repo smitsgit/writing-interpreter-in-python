@@ -60,6 +60,8 @@ class TokenTypes:
     SLASH = "/"
     LT = "<"
     GT = ">"
+    EQ = "=="
+    NOT_EQ = "!="
 
     # Delimiters
     COMMA = ","
@@ -103,7 +105,11 @@ class Lexer:
         self.skip_whitespace()
         tok: TokenType = None
         if self.chr == '=':
-            tok = Token(TokenTypes.ASSIGN, self.chr)
+            if self.peek_chr() == '=':
+                self.read_chr()
+                tok = Token(TokenTypes.EQ, "==")
+            else:
+                tok = Token(TokenTypes.ASSIGN, self.chr)
         elif self.chr == '+':
             tok = Token(TokenTypes.PLUS, self.chr)
         elif self.chr == '-':
@@ -121,7 +127,11 @@ class Lexer:
         elif self.chr == ';':
             tok = Token(TokenTypes.SEMICOLON, self.chr)
         elif self.chr == '!':
-            tok = Token(TokenTypes.BANG, self.chr)
+            if self.peek_chr() == '=':
+                self.read_chr()
+                tok = Token(TokenTypes.NOT_EQ, "==")
+            else:
+                tok = Token(TokenTypes.BANG, self.chr)
         elif self.chr == '*':
             tok = Token(TokenTypes.ASTERISK, self.chr)
         elif self.chr == '/':
@@ -149,14 +159,18 @@ class Lexer:
 
     def read_chr(self):
         if self.read_position < len(self._input) != 0:
-            try:
-                self.chr = self._input[self.read_position]
-            except IndexError as e:
-                print(e)
+            self.chr = self._input[self.read_position]
         else:
             self.chr = 0
         self.position = self.read_position
         self.read_position += 1
+
+    def peek_chr(self) -> str:
+        if self.read_position < len(self._input) != 0:
+            chr = self._input[self.read_position]
+        else:
+            chr = 0
+        return chr
 
     def read_identifier(self) -> str:
         position = self.position

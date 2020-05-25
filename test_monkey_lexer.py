@@ -60,6 +60,9 @@ let ten = 10;
    } else {
        return false;
    }
+   
+   10 == 10; 
+   10 != 9;
    """
 
     lexer = Lexer(data)
@@ -139,4 +142,14 @@ let ten = 10;
     assert lexer.next_token() == Token(TokenTypes.FALSE, "false")
     assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
     assert lexer.next_token() == Token(TokenTypes.RBRACE, "}")
+
+    assert lexer.next_token() == Token(TokenTypes.INT, "10")
+    assert lexer.next_token() == Token(TokenTypes.EQ, "==")
+    assert lexer.next_token() == Token(TokenTypes.INT, "10")
+    assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
+
+    assert lexer.next_token() == Token(TokenTypes.INT, "10")
+    assert lexer.next_token() == Token(TokenTypes.NOT_EQ, "==")
+    assert lexer.next_token() == Token(TokenTypes.INT, "9")
+    assert lexer.next_token() == Token(TokenTypes.SEMICOLON, ";")
     assert lexer.next_token() == Token(TokenTypes.EOF, "")
