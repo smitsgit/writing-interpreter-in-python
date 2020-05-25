@@ -206,3 +206,12 @@ class Lexer:
     def skipNone(self):
         if self.chr is None:
             self.read_chr()
+
+    def __iter__(self):
+         return self
+
+    def __next__(self):
+        tok = self.next_token()
+        if tok == Token(TokenTypes.EOF, ""):
+            raise StopIteration
+        return tok
