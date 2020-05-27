@@ -38,7 +38,7 @@ class Identifier(Expression):
     """
 
     def __init__(self, token: Token, value: Expression):
-        self._token = token # TokenTypes.IDENT token
+        self._token = token  # TokenTypes.IDENT token
         self._value = value
 
     def token_literal(self) -> str:
@@ -52,6 +52,18 @@ class LetStatement(Statement):
     def __init__(self, token: Token, name: Identifier, value: Expression = None):
         self._token = token  # TokenTypes.LET token
         self._name = name
+        self._value = value
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def statement_node(self):
+        pass
+
+
+class ReturnStatement(Statement):
+    def __init__(self, token: Token, value: Expression = None):
+        self._token = token  # TokenTypes.RETURN
         self._value = value
 
     def token_literal(self) -> str:

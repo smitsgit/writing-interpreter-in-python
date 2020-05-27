@@ -1,5 +1,5 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
-from monkey_ast import Program, LetStatement, Identifier
+from monkey_ast import Program, LetStatement, Identifier, ReturnStatement
 from typing import Optional
 
 
@@ -64,8 +64,20 @@ class Parser:
     def parse_statement(self) -> Optional[LetStatement]:
         if self._cur_token.type == TokenTypes.LET:
             return self.parse_let_statement()
+        if self._cur_token.type == TokenTypes.RETURN:
+            return self.parse_return_statement()
         else:
             return None
 
     def parse_identifier(self):
         return Identifier(self._cur_token, self._cur_token.literal)
+
+    def parse_return_statement(self):
+        token = self._cur_token
+
+        self.next_token()
+        # TODO: We're skipping the expressions until we encounter a semicolon
+        while not self.current_token_is(TokenTypes.SEMICOLON):
+            self.next_token()
+
+        return ReturnStatement(token)
