@@ -1,6 +1,7 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
 from monkey_ast import Program, LetStatement, Identifier, ReturnStatement
-from typing import Optional
+from typing import Optional, Dict, Callable
+import ast
 
 
 class Parser:
@@ -9,6 +10,8 @@ class Parser:
         self._lexer = lexer
         self._cur_token = cur_token
         self._peek_token = peek_token
+        self.prefix_parsers: Dict[Token, Callable[[], ast.Expression]] = {}
+        self.infix_parsers: Dict[Token, Callable[[ast.Expression], ast.Expression]] = {}
 
     @classmethod
     def new(cls, lexer: Lexer):
@@ -18,6 +21,12 @@ class Parser:
         parser.next_token()
         parser.next_token()
         return parser
+
+    def register_prefix(self, token: Token, func: Callable[[], ast.Expression]):
+        self.prefix_parsers[token] = func
+
+    def register_infix(self, token: Token, func: Callable[[ast.Expression], ast.Expression]):
+        self.infix_parsers[token] = func
 
     def next_token(self):
         self._cur_token = self._peek_token
