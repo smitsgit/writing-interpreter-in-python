@@ -94,7 +94,7 @@ class ReturnStatement(Statement):
 
 
 class ExpressionStatement(Statement):
-    def __init__(self, token: Token, expression: Expression):
+    def __init__(self, token: Token, expression: Expression = None):
         self._token = token  # The first token of the expression
         self._expression = expression
 

@@ -1,7 +1,17 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
-from monkey_ast import Program, LetStatement, Identifier, ReturnStatement
+from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, Expression, ExpressionStatement
 from typing import Optional, Dict, Callable
-import ast
+from enum import Enum
+
+
+class Precedence(Enum):
+    LOWEST = 1,
+    EQUALS = 2,
+    LESS_GREATER = 3,
+    SUM = 4,  # + -
+    PRODUCT = 5,  # * /
+    PREFIX = 6,
+    CALL = 7
 
 
 class Parser:
@@ -10,8 +20,8 @@ class Parser:
         self._lexer = lexer
         self._cur_token = cur_token
         self._peek_token = peek_token
-        self.prefix_parsers: Dict[Token, Callable[[], ast.Expression]] = {}
-        self.infix_parsers: Dict[Token, Callable[[ast.Expression], ast.Expression]] = {}
+        self.prefix_parsers: Dict[Token, Callable[[], Expression]] = {}
+        self.infix_parsers: Dict[Token, Callable[[Expression], Expression]] = {}
 
     @classmethod
     def new(cls, lexer: Lexer):
@@ -20,12 +30,14 @@ class Parser:
         # read two tokens so that current and peek tokens are set
         parser.next_token()
         parser.next_token()
+
+        parser.register_prefix(TokenTypes.IDENT, parser.parse_identifier)
         return parser
 
-    def register_prefix(self, token: Token, func: Callable[[], ast.Expression]):
+    def register_prefix(self, token: TokenTypes, func: Callable[[], Expression]):
         self.prefix_parsers[token] = func
 
-    def register_infix(self, token: Token, func: Callable[[ast.Expression], ast.Expression]):
+    def register_infix(self, token: TokenTypes, func: Callable[[Expression], Expression]):
         self.infix_parsers[token] = func
 
     def next_token(self):
@@ -76,7 +88,7 @@ class Parser:
         if self._cur_token.type == TokenTypes.RETURN:
             return self.parse_return_statement()
         else:
-            return None
+            return self.parse_expression_statement()
 
     def parse_identifier(self):
         return Identifier(self._cur_token, self._cur_token.literal)
@@ -90,3 +102,26 @@ class Parser:
             self.next_token()
 
         return ReturnStatement(token)
+
+    def parse_expression_statement(self):
+        statement = ExpressionStatement(self._cur_token)
+        statement._expression = self.parseExpression(Precedence.LOWEST)
+
+        if self.peek_token_is(TokenTypes.SEMICOLON):
+            self.next_token()
+
+        return statement
+
+    def parseExpression(self, precedence):
+        """
+        Whenever we wish to parse expression, check the token type,
+        See if there is registered function to handle the current token type
+        and call that function
+        :return:
+        """
+        prefix_fn = self.prefix_parsers.get(self._cur_token.type, None)
+        if prefix_fn:
+            left_exp = prefix_fn()
+            return left_exp
+        else:
+            return None

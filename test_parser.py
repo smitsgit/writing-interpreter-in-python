@@ -1,6 +1,7 @@
 from parser import Parser
 from monkey_lexer import Lexer
-from monkey_ast import Statement, LetStatement, ReturnStatement
+from monkey_ast import Statement, LetStatement, ReturnStatement, \
+    ExpressionStatement, Expression, Identifier
 import pytest
 
 
@@ -78,3 +79,35 @@ def test_return_statement(provide_return_data):
 
     for statement in program._statements:
         assert assert_single_return_statement(statement)
+
+
+def assert_simple_identifier_expression_statement(statement):
+    if not isinstance(statement, ExpressionStatement):
+        return False
+
+    if not isinstance(statement._expression, Identifier):
+        return False
+
+    if statement._expression._value != "foobar":
+        return False
+
+    if statement._expression.token_literal() != "foobar":
+        return False
+
+    return True
+
+
+def test_pratt_identifiers():
+    input = "foobar;"
+
+    lexer = Lexer(input)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+
+    if program is None:
+        pytest.fail(f"Failed to process the input")
+
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
+
+    assert assert_simple_identifier_expression_statement(program._statements[0])

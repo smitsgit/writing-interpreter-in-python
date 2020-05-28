@@ -37,7 +37,7 @@ class TokenType(str):
     pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Token:
     type: TokenType
     literal: str
