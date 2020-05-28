@@ -23,6 +23,9 @@ class Expression(implements(Node)):
     def expression_node(self):
         pass
 
+    def __str__(self):
+        pass
+
 
 class Identifier(Expression):
     """
@@ -47,6 +50,9 @@ class Identifier(Expression):
     def expression_node(self):
         pass
 
+    def __str__(self):
+        return f"{self._value}"
+
 
 class LetStatement(Statement):
     def __init__(self, token: Token, name: Identifier, value: Expression = None):
@@ -60,6 +66,13 @@ class LetStatement(Statement):
     def statement_node(self):
         pass
 
+    def __str__(self):
+        repr = f"{self.token_literal()} {self._name} ="
+        if self._value:
+            repr = repr + f"{self._value};"
+
+        return repr
+
 
 class ReturnStatement(Statement):
     def __init__(self, token: Token, value: Expression = None):
@@ -72,6 +85,32 @@ class ReturnStatement(Statement):
     def statement_node(self):
         pass
 
+    def __str__(self):
+        repr = f"{self.token_literal()}"
+        if self._value:
+            repr = f"{repr} {self._value};"
+
+        return repr
+
+
+class ExpressionStatement(Statement):
+    def __init__(self, token: Token, expression: Expression):
+        self._token = token  # The first token of the expression
+        self._expression = expression
+
+    def token_literal(self) -> str:
+        pass
+
+    def statement_node(self):
+        pass
+
+    def __str__(self):
+        if self._expression:
+            repr = f"{self._expression}"
+            return repr
+
+        return "### No Repr ####"
+
 
 class Program:
     def __init__(self):
@@ -82,3 +121,11 @@ class Program:
             return self._statements[0].token_literal()
         else:
             return ""
+
+    def __str__(self):
+        data = ""
+        for item in self._statements:
+            data = data + f"{item}"
+            data = data + "\n"
+
+        return data
