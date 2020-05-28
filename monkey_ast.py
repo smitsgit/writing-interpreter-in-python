@@ -27,6 +27,22 @@ class Expression(implements(Node)):
         pass
 
 
+class PrefixExpression(Expression):
+    def __init__(self, token: Token, operator: str, right: Expression = None):
+        self._token = token
+        self._op = operator
+        self._right = right
+
+    def token_literal(self) -> str:
+        pass
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        return f"({self._op} {self._right})"
+
+
 class Identifier(Expression):
     """
     In Monkey language, identifier in let statement doesn't produce a value
@@ -42,6 +58,21 @@ class Identifier(Expression):
 
     def __init__(self, token: Token, value: Expression):
         self._token = token  # TokenTypes.IDENT token
+        self._value = value
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        return f"{self._value}"
+
+
+class IntegerLiteral(Expression):
+    def __init__(self, token: Token, value: int):
+        self._token = token
         self._value = value
 
     def token_literal(self) -> str:

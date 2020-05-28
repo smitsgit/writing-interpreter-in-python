@@ -1,7 +1,7 @@
 from parser import Parser
 from monkey_lexer import Lexer
 from monkey_ast import Statement, LetStatement, ReturnStatement, \
-    ExpressionStatement, Expression, Identifier
+    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression
 import pytest
 
 
@@ -111,3 +111,77 @@ def test_pratt_identifiers():
         pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
 
     assert assert_simple_identifier_expression_statement(program._statements[0])
+
+
+def assert_simple_integer_expression(statement):
+    if not isinstance(statement, ExpressionStatement):
+        return False
+
+    if not isinstance(statement._expression, IntegerLiteral):
+        return False
+
+    if statement._expression._value != 5:
+        return False
+
+    if statement._expression.token_literal() != "5":
+        return False
+
+    return True
+
+
+def test_pratt_integer_literals():
+    input = "5;"
+
+    lexer = Lexer(input)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+
+    if program is None:
+        pytest.fail(f"Failed to process the input")
+
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
+
+    statement = program._statements[0]
+
+    assert assert_simple_integer_expression(statement)
+
+
+def check_parse_errors(parser):
+    if len(parser.errors):
+        for msg in parser.errors:
+            print(msg)
+        pytest.fail("Parser has encountered errors")
+
+
+def assert_simple_prefix_operator_statement(statement, expected_token_literal, expected_right_expression):
+    if not isinstance(statement, ExpressionStatement):
+        return False
+
+    if not isinstance(statement._expression, PrefixExpression):
+        return False
+
+    if statement._expression._op != expected_token_literal:
+        return False
+
+    if str(statement._expression._right) != expected_right_expression:
+        return False
+
+    return True
+
+
+@pytest.mark.parametrize("input_data, expected_token_literal,\
+                         expected_right_expression", [("!5;", "!", 5), ("-15;", "-", 15)])
+def test_pratt_prefix_operators(input_data, expected_token_literal, expected_right_expression):
+    lexer = Lexer(input_data)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+
+    check_parse_errors(parser)
+
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
+
+    statement = program._statements[0]
+
+    assert assert_simple_prefix_operator_statement(statement, expected_token_literal, str(expected_right_expression))

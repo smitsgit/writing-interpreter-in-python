@@ -1,5 +1,6 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
-from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, Expression, ExpressionStatement
+from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression
+from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import Enum
 
@@ -22,6 +23,7 @@ class Parser:
         self._peek_token = peek_token
         self.prefix_parsers: Dict[Token, Callable[[], Expression]] = {}
         self.infix_parsers: Dict[Token, Callable[[Expression], Expression]] = {}
+        self.errors = []
 
     @classmethod
     def new(cls, lexer: Lexer):
@@ -31,7 +33,10 @@ class Parser:
         parser.next_token()
         parser.next_token()
 
+        parser.register_prefix(TokenTypes.MINUS, parser.parse_prefix_expression)
+        parser.register_prefix(TokenTypes.BANG, parser.parse_prefix_expression)
         parser.register_prefix(TokenTypes.IDENT, parser.parse_identifier)
+        parser.register_prefix(TokenTypes.INT, parser.parse_integer)
         return parser
 
     def register_prefix(self, token: TokenTypes, func: Callable[[], Expression]):
@@ -93,6 +98,9 @@ class Parser:
     def parse_identifier(self):
         return Identifier(self._cur_token, self._cur_token.literal)
 
+    def parse_integer(self):
+        return IntegerLiteral(self._cur_token, int(self._cur_token.literal))
+
     def parse_return_statement(self):
         token = self._cur_token
 
@@ -112,6 +120,12 @@ class Parser:
 
         return statement
 
+    def parse_prefix_expression(self):
+        expression = PrefixExpression(self._cur_token, self._cur_token.literal)
+        self.next_token()
+        expression._right = self.parseExpression(Precedence.PREFIX)
+        return expression
+
     def parseExpression(self, precedence):
         """
         Whenever we wish to parse expression, check the token type,
@@ -124,4 +138,5 @@ class Parser:
             left_exp = prefix_fn()
             return left_exp
         else:
+            self.errors.append(f"Unable to parse the token {self._cur_token}")
             return None
