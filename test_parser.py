@@ -1,7 +1,7 @@
 from parser import Parser
 from monkey_lexer import Lexer
 from monkey_ast import Statement, LetStatement, ReturnStatement, \
-    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression
+    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression
 import pytest
 
 
@@ -151,7 +151,6 @@ def check_parse_errors(parser):
     if len(parser.errors):
         for msg in parser.errors:
             print(msg)
-        pytest.fail("Parser has encountered errors")
 
 
 def assert_simple_prefix_operator_statement(statement, expected_token_literal, expected_right_expression):
@@ -185,3 +184,47 @@ def test_pratt_prefix_operators(input_data, expected_token_literal, expected_rig
     statement = program._statements[0]
 
     assert assert_simple_prefix_operator_statement(statement, expected_token_literal, str(expected_right_expression))
+
+
+def assert_simple_infix_operator_statement(statement, expected_left, expected_op, expected_right):
+    if not isinstance(statement, ExpressionStatement):
+        return False
+
+    if not isinstance(statement._expression, InfixExpression):
+        return False
+
+    if str(statement._expression._left) != expected_left:
+        return False
+
+    if statement._expression._op != expected_op:
+        return False
+
+    if str(statement._expression._right) != expected_right:
+        return False
+
+    return True
+
+
+@pytest.mark.parametrize("input_data, expected_left, expected_op,\
+                         expected_right", [("5 + 5;", 5, "+", 5),
+                                           ("5 - 5;", 5, "-", 5),
+                                           ("5 * 5;", 5, "*", 5),
+                                           ("5 / 5;", 5, "/", 5),
+                                           ("5 > 5;", 5, ">", 5),
+                                           ("5 < 5;", 5, "<", 5),
+                                           ("5 == 5;", 5, "==", 5),
+                                           ("5 != 5;", 5, "!=", 5)
+                                           ])
+def test_pratt_infix_operators(input_data, expected_left, expected_op, expected_right):
+    lexer = Lexer(input_data)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+
+    check_parse_errors(parser)
+
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
+
+    statement = program._statements[0]
+
+    assert assert_simple_infix_operator_statement(statement, str(expected_left), expected_op, str(expected_right))

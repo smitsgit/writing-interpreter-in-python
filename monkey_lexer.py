@@ -129,7 +129,7 @@ class Lexer:
         elif self.chr == '!':
             if self.peek_chr() == '=':
                 self.read_chr()
-                tok = Token(TokenTypes.NOT_EQ, "==")
+                tok = Token(TokenTypes.NOT_EQ, "!=")
             else:
                 tok = Token(TokenTypes.BANG, self.chr)
         elif self.chr == '*':
