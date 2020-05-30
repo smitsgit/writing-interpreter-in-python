@@ -228,3 +228,26 @@ def test_pratt_infix_operators(input_data, expected_left, expected_op, expected_
     statement = program._statements[0]
 
     assert assert_simple_infix_operator_statement(statement, str(expected_left), expected_op, str(expected_right))
+
+
+@pytest.mark.parametrize("input_data, expected_str", [("-a * b;", "((-a) * b)"),
+                                                      ("!-a;", "(!(-a))"),
+                                                      ("a + b + c;", "((a + b) + c)"),
+                                                      ("a + b - c;", "((a + b) - c)"),
+                                                      ("a * b * c;", "((a * b) * c)"),
+                                                      ("a * b / c;", "((a * b) / c)"),
+                                                      ("a + b / c;", "(a + (b / c))"),
+                                                      ("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f)"),
+                                                      ("3 + 4; -5 * 5;", "(3 + 4)((-5) * 5)"),
+                                                      ("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4))"),
+                                                      ("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4))"),
+                                                      ("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))")
+                                                      ])
+def test_operator_precedence_parsing(input_data, expected_str):
+    lexer = Lexer(input_data)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+
+    check_parse_errors(parser)
+    print(str(program))
+    assert str(program).rstrip(" ") == expected_str

@@ -40,7 +40,7 @@ class PrefixExpression(Expression):
         pass
 
     def __str__(self):
-        return f"({self._op} {self._right})"
+        return f"({self._op}{self._right})"
 
 
 class InfixExpression(Expression):
@@ -174,6 +174,6 @@ class Program:
         data = ""
         for item in self._statements:
             data = data + f"{item}"
-            data = data + "\n"
+            data = data + ""
 
         return data
