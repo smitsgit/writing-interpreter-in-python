@@ -170,7 +170,10 @@ def assert_simple_prefix_operator_statement(statement, expected_token_literal, e
 
 
 @pytest.mark.parametrize("input_data, expected_token_literal,\
-                         expected_right_expression", [("!5;", "!", 5), ("-15;", "-", 15)])
+                         expected_right_expression", [("!5;", "!", 5), ("-15;", "-", 15),
+                                                      ("!True;", "!", "True"),
+                                                      ("!False;", "!", "False"),
+                                                      ])
 def test_pratt_prefix_operators(input_data, expected_token_literal, expected_right_expression):
     lexer = Lexer(input_data)
     parser = Parser.new(lexer)
@@ -213,7 +216,10 @@ def assert_simple_infix_operator_statement(statement, expected_left, expected_op
                                            ("5 > 5;", 5, ">", 5),
                                            ("5 < 5;", 5, "<", 5),
                                            ("5 == 5;", 5, "==", 5),
-                                           ("5 != 5;", 5, "!=", 5)
+                                           ("5 != 5;", 5, "!=", 5),
+                                           ("True == True;", "True", "==", "True"),
+                                           ("True != False;", "True", "!=", "False"),
+                                           ("False == False;", "False", "==", "False")
                                            ])
 def test_pratt_infix_operators(input_data, expected_left, expected_op, expected_right):
     lexer = Lexer(input_data)
@@ -230,7 +236,10 @@ def test_pratt_infix_operators(input_data, expected_left, expected_op, expected_
     assert assert_simple_infix_operator_statement(statement, str(expected_left), expected_op, str(expected_right))
 
 
-@pytest.mark.parametrize("input_data, expected_str", [("-a * b;", "((-a) * b)"),
+@pytest.mark.parametrize("input_data, expected_str", [("True;", "True"),
+                                                      ("3 > 5 == False;", "((3 > 5) == False)"),
+                                                      ("3 < 5 == True;", "((3 < 5) == True)"),
+                                                      ("-a * b;", "((-a) * b)"),
                                                       ("!-a;", "(!(-a))"),
                                                       ("a + b + c;", "((a + b) + c)"),
                                                       ("a + b - c;", "((a + b) - c)"),

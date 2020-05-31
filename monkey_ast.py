@@ -87,6 +87,21 @@ class Identifier(Expression):
         return f"{self._value}"
 
 
+class BooleanLiteral(Expression):
+    def __init__(self, token: Token, value: bool):
+        self._token = token
+        self._value = value
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        return f"{self._token.literal}"
+
+
 class IntegerLiteral(Expression):
     def __init__(self, token: Token, value: int):
         self._token = token

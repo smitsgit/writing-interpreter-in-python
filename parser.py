@@ -1,5 +1,6 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
-from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression
+from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
+    BooleanLiteral
 from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import Enum
@@ -46,6 +47,8 @@ class Parser:
         parser.next_token()
         parser.next_token()
 
+        parser.register_prefix(TokenTypes.TRUE, parser.parse_boolean_expression)
+        parser.register_prefix(TokenTypes.FALSE, parser.parse_boolean_expression)
         parser.register_prefix(TokenTypes.MINUS, parser.parse_prefix_expression)
         parser.register_prefix(TokenTypes.BANG, parser.parse_prefix_expression)
         parser.register_prefix(TokenTypes.IDENT, parser.parse_identifier)
@@ -116,6 +119,9 @@ class Parser:
             return self.parse_return_statement()
         else:
             return self.parse_expression_statement()
+
+    def parse_boolean_expression(self):
+        return BooleanLiteral(self._cur_token, self.current_token_is(TokenTypes.TRUE))
 
     def parse_identifier(self):
         return Identifier(self._cur_token, self._cur_token.literal)
