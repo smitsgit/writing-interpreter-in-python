@@ -3,6 +3,7 @@ from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, Prefi
 from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import Enum
+from trace_helper import TraceCalls
 
 
 class Precedence(Enum):
@@ -132,6 +133,7 @@ class Parser:
 
         return ReturnStatement(token)
 
+    @TraceCalls()
     def parse_expression_statement(self):
         statement = ExpressionStatement(self._cur_token)
         statement._expression = self.parseExpression(Precedence.LOWEST.value)
@@ -141,12 +143,14 @@ class Parser:
 
         return statement
 
+    @TraceCalls()
     def parse_prefix_expression(self):
         expression = PrefixExpression(self._cur_token, self._cur_token.literal)
         self.next_token()
         expression._right = self.parseExpression(Precedence.PREFIX.value)
         return expression
 
+    @TraceCalls()
     def parse_infix_expression(self, left: Expression):
         expression = InfixExpression(self._cur_token, self._cur_token.literal, left=left)
         precedence = self.curr_precedence()
@@ -154,6 +158,7 @@ class Parser:
         expression._right = self.parseExpression(precedence)
         return expression
 
+    @TraceCalls()
     def parseExpression(self, precedence):
         """
         Whenever we wish to parse expression, check the token type,
