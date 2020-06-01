@@ -172,7 +172,7 @@ class ExpressionStatement(Statement):
             repr = f"{self._expression}"
             return repr
 
-        return "### No Repr ####"
+        return ""
 
 
 class Program:

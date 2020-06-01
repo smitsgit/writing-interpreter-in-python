@@ -47,6 +47,7 @@ class Parser:
         parser.next_token()
         parser.next_token()
 
+        parser.register_prefix(TokenTypes.LPAREN, parser.parse_grouped_expression)
         parser.register_prefix(TokenTypes.TRUE, parser.parse_boolean_expression)
         parser.register_prefix(TokenTypes.FALSE, parser.parse_boolean_expression)
         parser.register_prefix(TokenTypes.MINUS, parser.parse_prefix_expression)
@@ -150,6 +151,17 @@ class Parser:
         return statement
 
     @TraceCalls()
+    def parse_grouped_expression(self) -> Expression:
+        self.next_token()
+        exp = self.parseExpression(Precedence.LOWEST.value)
+
+        if not self.peek_token_is(TokenTypes.RPAREN):
+            return None
+
+        self.next_token()
+        return exp
+
+    @TraceCalls()
     def parse_prefix_expression(self):
         expression = PrefixExpression(self._cur_token, self._cur_token.literal)
         self.next_token()
@@ -189,6 +201,7 @@ class Parser:
             self.next_token()
             left_exp = infix_fn(left_exp)
 
+        # print(left_exp)
         return left_exp
 
     def peek_precedence(self) -> int:
