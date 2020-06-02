@@ -1,7 +1,8 @@
 from parser import Parser
 from monkey_lexer import Lexer
 from monkey_ast import Statement, LetStatement, ReturnStatement, \
-    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression
+    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, \
+    FunctionLiteral
 import pytest
 
 
@@ -88,10 +89,10 @@ def assert_simple_identifier_expression_statement(statement, identifier_name):
     if not isinstance(statement._expression, Identifier):
         return False
 
-    if statement._expression._value != "identifier_name":
+    if statement._expression._value != identifier_name:
         return False
 
-    if statement._expression.token_literal() != "identifier_name":
+    if statement._expression.token_literal() != identifier_name:
         return False
 
     return True
@@ -286,6 +287,24 @@ def test_if_expression():
     assert str(program) == "if (x < y) { x } else { y }"
 
 
+def test_function_literal():
+    lexer = Lexer("fn(x, y) { x + y }")
+    parser = Parser.new(lexer)
+    program = parser.parse()
+    check_parse_errors(parser)
 
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
 
+    statement = program._statements[0]
 
+    if not isinstance(statement._expression, FunctionLiteral):
+        pytest.fail(f"Expected function literal : Found => {type(statement._expression)}")
+
+    if len(statement._expression._parameters) != 2:
+        pytest.fail(f"Expected two parameters : Got {len(statement._expression_parameters)}")
+
+    assert statement._expression._parameters[0]._value == "x"
+    assert statement._expression._parameters[1]._value ==  "y"
+
+    assert str(statement._expression._block) == "(x + y)"

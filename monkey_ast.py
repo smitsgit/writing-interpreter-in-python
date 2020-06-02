@@ -219,6 +219,24 @@ class IfExpression(Expression):
         return data
 
 
+class FunctionLiteral(Expression):
+    def __init__(self, token: Token, parameters: List[Identifier] = None,
+                 block: BlockStatement = None):
+        self._token = token  # The 'fn' token
+        self._parameters = parameters
+        self._block = block
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        data = f"{self._token.literal}" + "( " + ", ".join(self._parameters) + " )" + str(self._block)
+        return data
+
+
 class Program:
     def __init__(self):
         self._statements: List = []

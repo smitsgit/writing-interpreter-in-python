@@ -1,6 +1,6 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
 from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
-    BooleanLiteral, IfExpression, BlockStatement
+    BooleanLiteral, IfExpression, BlockStatement, FunctionLiteral
 from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import Enum
@@ -47,6 +47,7 @@ class Parser:
         parser.next_token()
         parser.next_token()
 
+        parser.register_prefix(TokenTypes.FUNCTION, parser.parse_function_expression)
         parser.register_prefix(TokenTypes.IF, parser.parse_if_expression)
         parser.register_prefix(TokenTypes.LPAREN, parser.parse_grouped_expression)
         parser.register_prefix(TokenTypes.TRUE, parser.parse_boolean_expression)
@@ -252,8 +253,50 @@ class Parser:
 
         return block
 
+    def parse_function_expression(self):
+        func_exp = FunctionLiteral(self._cur_token)
+
+        if not self.peek_token_is(TokenTypes.LPAREN):
+            return None
+        self.next_token()  # consume the "("
+
+        func_exp._parameters = self.parse_func_parameters()
+
+        if not self.peek_token_is(TokenTypes.LBRACE):
+            return None
+        self.next_token()  # consume the "{"
+
+        func_exp._block = self.parse_block_statement()
+
+        return func_exp
+
     def peek_precedence(self) -> int:
         return token_to_precedence.get(self._peek_token.type, Precedence.LOWEST).value
 
     def curr_precedence(self) -> int:
         return token_to_precedence.get(self._cur_token.type, Precedence.LOWEST).value
+
+    def parse_func_parameters(self):
+        parameters = []
+        if self.peek_token_is(TokenTypes.RPAREN):
+            self.next_token()
+            self.next_token()
+            return parameters
+
+        self.next_token()
+
+        ident = Identifier(self._cur_token, self._cur_token.literal)
+        parameters.append(ident)
+
+        while self.peek_token_is(TokenTypes.COMMA):
+            self.next_token()
+            self.next_token()
+            ident = Identifier(self._cur_token, self._cur_token.literal)
+            parameters.append(ident)
+
+        if not self.peek_token_is(TokenTypes.RPAREN):
+            return None
+
+        self.next_token()
+        return parameters
+
