@@ -175,6 +175,50 @@ class ExpressionStatement(Statement):
         return ""
 
 
+class BlockStatement:
+    def __init__(self, token: Token, statements: List[Statement] = None):
+        self._token = token  # The '{' token
+        self._statements = statements
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def statement_node(self):
+        pass
+
+    def __str__(self):
+        data = ""
+        for item in self._statements:
+            data = data + f"{item}"
+            data = data + ""
+        return data
+
+
+class IfExpression(Expression):
+    def __init__(self, token: Token,  # 'If' token
+                 condition: Expression = None,
+                 consequence: List[BlockStatement] = None,
+                 alternative: List[BlockStatement] = None):
+        self._token = token
+        self._condition = condition
+        self._consequence = consequence
+        self._alternative = alternative
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        data = f"{self._token.literal} {str(self._condition)} " + "{ " + str(self._consequence) + " }"
+
+        if self._alternative:
+            data = data + " else " + "{ " + str(self._alternative) + " }"
+
+        return data
+
+
 class Program:
     def __init__(self):
         self._statements: List = []

@@ -1,7 +1,7 @@
 from parser import Parser
 from monkey_lexer import Lexer
 from monkey_ast import Statement, LetStatement, ReturnStatement, \
-    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression
+    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression
 import pytest
 
 
@@ -81,17 +81,17 @@ def test_return_statement(provide_return_data):
         assert assert_single_return_statement(statement)
 
 
-def assert_simple_identifier_expression_statement(statement):
+def assert_simple_identifier_expression_statement(statement, identifier_name):
     if not isinstance(statement, ExpressionStatement):
         return False
 
     if not isinstance(statement._expression, Identifier):
         return False
 
-    if statement._expression._value != "foobar":
+    if statement._expression._value != "identifier_name":
         return False
 
-    if statement._expression.token_literal() != "foobar":
+    if statement._expression.token_literal() != "identifier_name":
         return False
 
     return True
@@ -110,7 +110,7 @@ def test_pratt_identifiers():
     if len(program._statements) != 1:
         pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
 
-    assert assert_simple_identifier_expression_statement(program._statements[0])
+    assert assert_simple_identifier_expression_statement(program._statements[0], input)
 
 
 def assert_simple_integer_expression(statement):
@@ -265,3 +265,27 @@ def test_operator_precedence_parsing(input_data, expected_str):
     check_parse_errors(parser)
     print(str(program))
     assert str(program).rstrip(" ") == expected_str
+
+
+def test_if_expression():
+    lexer = Lexer("if (x < y) { x } else { y }")
+    parser = Parser.new(lexer)
+    program = parser.parse()
+    check_parse_errors(parser)
+
+    if len(program._statements) != 1:
+        pytest.fail(f"Mismatch: Expected -> 1 : Found -> {len(program._statements)}")
+
+    statement = program._statements[0]
+
+    assert isinstance(statement, ExpressionStatement), f"type mismatch {type(statement)}"
+
+    if not isinstance(statement._expression, IfExpression):
+        pytest.fail(f"Type mismatch:Got {type(statement._expression)}")
+
+    assert str(program) == "if (x < y) { x } else { y }"
+
+
+
+
+

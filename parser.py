@@ -1,6 +1,6 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
 from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
-    BooleanLiteral
+    BooleanLiteral, IfExpression, BlockStatement
 from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import Enum
@@ -47,6 +47,7 @@ class Parser:
         parser.next_token()
         parser.next_token()
 
+        parser.register_prefix(TokenTypes.IF, parser.parse_if_expression)
         parser.register_prefix(TokenTypes.LPAREN, parser.parse_grouped_expression)
         parser.register_prefix(TokenTypes.TRUE, parser.parse_boolean_expression)
         parser.register_prefix(TokenTypes.FALSE, parser.parse_boolean_expression)
@@ -201,8 +202,55 @@ class Parser:
             self.next_token()
             left_exp = infix_fn(left_exp)
 
-        # print(left_exp)
         return left_exp
+
+    def parse_if_expression(self):
+        ifexp = IfExpression(self._cur_token)
+        if not self.peek_token_is(TokenTypes.LPAREN):
+            return None
+
+        self.next_token()  # consume the '('
+
+        self.next_token()  # point current to the left most token of condition
+        ifexp._condition = self.parseExpression(Precedence.LOWEST.value)
+
+        if not self.peek_token_is(TokenTypes.RPAREN):
+            return None
+
+        self.next_token()
+
+        if not self.peek_token_is(TokenTypes.LBRACE):
+            return None
+
+        self.next_token()
+        ifexp._consequence = self.parse_block_statement()
+
+        if self.peek_token_is(TokenTypes.ELSE):
+            self.next_token()
+
+            if not self.peek_token_is(TokenTypes.LBRACE):
+                return None
+
+            self.next_token()
+            ifexp._alternative = self.parse_block_statement()
+
+        return ifexp
+
+    def parse_block_statement(self) -> BlockStatement:
+        block = BlockStatement(token=self._cur_token)
+        block._statements = []
+
+        self.next_token()
+
+        while not (self.current_token_is(TokenTypes.RBRACE) or
+                   self.current_token_is(TokenTypes.EOF)):
+            statement = self.parse_statement()
+            if statement:
+                block._statements.append(statement)
+
+            self.next_token()
+
+        return block
 
     def peek_precedence(self) -> int:
         return token_to_precedence.get(self._peek_token.type, Precedence.LOWEST).value
