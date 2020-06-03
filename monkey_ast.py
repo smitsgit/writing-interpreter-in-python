@@ -237,6 +237,24 @@ class FunctionLiteral(Expression):
         return data
 
 
+class CallExpression(Expression):
+    def __init__(self, token: Token,
+                 ident_or_func_literal: Expression = None, args: List[Expression] = None):
+        self._token = token,  # The '(' token
+        self._ident_or_func_literal = ident_or_func_literal
+        self._args = args
+
+    def token_literal(self) -> str:
+        return self._token.literal
+
+    def expression_node(self):
+        pass
+
+    def __str__(self):
+        data = f"{str(self._ident_or_func_literal)}" + "( " + ", ".join(self._args) + " )"
+        return data
+
+
 class Program:
     def __init__(self):
         self._statements: List = []

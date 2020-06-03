@@ -1,13 +1,13 @@
 from monkey_lexer import Lexer, Token, TokenTypes, TokenType
 from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
-    BooleanLiteral, IfExpression, BlockStatement, FunctionLiteral
+    BooleanLiteral, IfExpression, BlockStatement, FunctionLiteral, CallExpression
 from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
-from enum import Enum
+from enum import IntEnum
 from trace_helper import TraceCalls
 
 
-class Precedence(Enum):
+class Precedence(IntEnum):
     LOWEST = 1,
     EQUALS = 2,
     LESS_GREATER = 3,
@@ -25,7 +25,8 @@ token_to_precedence = {
     TokenTypes.PLUS: Precedence.SUM,
     TokenTypes.MINUS: Precedence.SUM,
     TokenTypes.SLASH: Precedence.PRODUCT,
-    TokenTypes.ASTERISK: Precedence.PRODUCT
+    TokenTypes.ASTERISK: Precedence.PRODUCT,
+    TokenTypes.LPAREN: Precedence.CALL
 }
 
 
@@ -57,6 +58,7 @@ class Parser:
         parser.register_prefix(TokenTypes.IDENT, parser.parse_identifier)
         parser.register_prefix(TokenTypes.INT, parser.parse_integer)
 
+        parser.register_infix(TokenTypes.LPAREN, parser.parse_call_expression)
         parser.register_infix(TokenTypes.PLUS, parser.parse_infix_expression)
         parser.register_infix(TokenTypes.MINUS, parser.parse_infix_expression)
         parser.register_infix(TokenTypes.LT, parser.parse_infix_expression)
@@ -270,12 +272,6 @@ class Parser:
 
         return func_exp
 
-    def peek_precedence(self) -> int:
-        return token_to_precedence.get(self._peek_token.type, Precedence.LOWEST).value
-
-    def curr_precedence(self) -> int:
-        return token_to_precedence.get(self._cur_token.type, Precedence.LOWEST).value
-
     def parse_func_parameters(self):
         parameters = []
         if self.peek_token_is(TokenTypes.RPAREN):
@@ -299,4 +295,41 @@ class Parser:
 
         self.next_token()
         return parameters
+
+    def parse_call_expression(self, ident_or_func_expression):
+        expression = CallExpression(self._cur_token, ident_or_func_expression)
+        expression._args = self.parse_args()
+        return expression
+
+    def parse_args(self):
+        args = []
+        if self.peek_token_is(TokenTypes.RPAREN):
+            self.next_token()
+            self.next_token()
+            return args
+
+        self.next_token()
+        arg = self.parseExpression(Precedence.LOWEST.value)
+        args.append(arg)
+
+        while self.peek_token_is(TokenTypes.COMMA):
+            self.next_token()
+            self.next_token()
+            arg = self.parseExpression(Precedence.LOWEST.value)
+            args.append(arg)
+
+        if not self.peek_token_is(TokenTypes.RPAREN):
+            return None
+
+        self.next_token()
+        return args
+
+    def peek_precedence(self) -> int:
+        return token_to_precedence.get(self._peek_token.type, Precedence.LOWEST).value
+
+    def curr_precedence(self) -> int:
+        return token_to_precedence.get(self._cur_token.type, Precedence.LOWEST).value
+
+
+
 
