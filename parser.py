@@ -92,23 +92,27 @@ class Parser:
         return program
 
     def parse_let_statement(self):
-        token = self._cur_token
+        statement = LetStatement(self._cur_token)
 
         if not self.peek_token_is(TokenTypes.IDENT):
             return None
 
         self.next_token()
-        name = self.parse_identifier()
+        statement._name = self.parse_identifier()
 
         if not self.peek_token_is(TokenTypes.ASSIGN):
+            self.next_token()
             return None
 
-        statement = LetStatement(token, name)
+        self.next_token()
+        self.next_token()
 
-        # We are not consuming value in let x = [ 5 ]; cause that
-        # can be an expression and we are yet to see expression parsing
-        while not self.current_token_is(TokenTypes.SEMICOLON):
+        statement._value = self.parseExpression(Precedence.LOWEST)
+
+        if self.peek_token_is(TokenTypes.SEMICOLON):
             self.next_token()
+            self.next_token()  # set the current token correct for next parsing
+
         return statement
 
     def current_token_is(self, type: TokenType):
@@ -135,14 +139,17 @@ class Parser:
         return IntegerLiteral(self._cur_token, int(self._cur_token.literal))
 
     def parse_return_statement(self):
-        token = self._cur_token
-
+        statement = ReturnStatement(self._cur_token)
         self.next_token()
+
+        statement._value = self.parseExpression(Precedence.LOWEST)
+
         # TODO: We're skipping the expressions until we encounter a semicolon
-        while not self.current_token_is(TokenTypes.SEMICOLON):
+        if self.peek_token_is(TokenTypes.SEMICOLON):
+            self.next_token()
             self.next_token()
 
-        return ReturnStatement(token)
+        return statement
 
     @TraceCalls()
     def parse_expression_statement(self):

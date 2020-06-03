@@ -7,15 +7,6 @@ import pytest
 
 
 @pytest.fixture()
-def provide_let_data():
-    return """
-     let x = 5;
-    let y = 10;
-    let foobar = 838383;
-    """
-
-
-@pytest.fixture()
 def provide_return_data():
     return """
     return 5;
@@ -24,21 +15,21 @@ def provide_return_data():
     """
 
 
-def test_let_statements(provide_let_data):
-    lexer = Lexer(provide_let_data)
+@pytest.mark.parametrize("let_data", [("let foobar = add(2, 4);"),
+                                      ("let y = true;"),
+                                      ("let foobar = y;")])
+def test_let_statements(let_data):
+    lexer = Lexer(let_data)
     parser = Parser.new(lexer)
     program = parser.parse()
 
     if program is None:
         pytest.fail(f"Failed to process the input")
 
-    if len(program._statements) != 3:
+    if len(program._statements) != 1:
         pytest.fail(f"Mismatch: Expected -> 3 : Found -> {len(program._statements)}")
 
-    expected_identifier_names = ['x', 'y', 'foobar']
-
-    for statement, expected_name in zip(program._statements, expected_identifier_names):
-        assert assert_single_let_statement(statement, expected_name)
+    assert let_data == str(program)
 
 
 def assert_single_let_statement(statement: Statement, name: str):

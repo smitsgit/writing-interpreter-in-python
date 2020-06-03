@@ -114,11 +114,11 @@ class IntegerLiteral(Expression):
         pass
 
     def __str__(self):
-        return f"{self._value}"
+        return f"{str(self._value)}"
 
 
 class LetStatement(Statement):
-    def __init__(self, token: Token, name: Identifier, value: Expression = None):
+    def __init__(self, token: Token, name: Identifier = None, value: Expression = None):
         self._token = token  # TokenTypes.LET token
         self._name = name
         self._value = value
@@ -130,9 +130,9 @@ class LetStatement(Statement):
         pass
 
     def __str__(self):
-        repr = f"{self.token_literal()} {self._name} ="
+        repr = f"{self.token_literal()} {self._name} = "
         if self._value:
-            repr = repr + f"{self._value};"
+            repr = repr + f"{str(self._value)};"
 
         return repr
 
@@ -251,7 +251,7 @@ class CallExpression(Expression):
         pass
 
     def __str__(self):
-        data = f"{str(self._ident_or_func_literal)}" + "( " + ", ".join(self._args) + " )"
+        data = f"{str(self._ident_or_func_literal)}" + "(" + ", ".join(str(item) for item in self._args) + ")"
         return data
 
 
@@ -268,7 +268,7 @@ class Program:
     def __str__(self):
         data = ""
         for item in self._statements:
-            data = data + f"{item}"
+            data = data + f"{str(item)}"
             data = data + ""
 
         return data
