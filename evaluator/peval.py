@@ -1,8 +1,14 @@
 from typing import List
 
 from abstract import Node
-from .object import Object, Integer
+from .object import Object, Integer, Boolean, Null
 from abstract import monkey_ast as ast
+
+singleton_mapper = {
+    'TRUE': Boolean(True),
+    'FALSE': Boolean(False),
+    'NULL': Null()
+}
 
 
 def eval_statements(statements: List[ast.Statement]) -> Object:
@@ -28,6 +34,9 @@ def eval(node: Node) -> Object:
     """
     if isinstance(node, ast.IntegerLiteral):
         return Integer(node._value)
+
+    if isinstance(node, ast.BooleanLiteral):
+        return singleton_mapper(node.token_literal())
 
     if isinstance(node, ast.Program):
         return eval_statements(node._statements)

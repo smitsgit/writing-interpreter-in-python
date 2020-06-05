@@ -7,6 +7,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from pygments.lexers import load_lexer_from_file
 from parser import Parser
+from evaluator.peval import eval
 
 MONKEY = """\
             __,__
@@ -40,7 +41,8 @@ def main(argv):
         lexer = monkey_lexer.Lexer(data)
         parser = Parser.new(lexer)
         program = parser.parse()
-        print(program)
+        output = eval(program)
+        print(output)
 
 
 if __name__ == '__main__':
