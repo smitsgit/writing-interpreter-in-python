@@ -1,6 +1,6 @@
 import sys
 import getpass
-import monkey_lexer
+from lexer import monkey_lexer
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -8,7 +8,7 @@ from prompt_toolkit.completion import WordCompleter
 from pygments.lexers import load_lexer_from_file
 from parser import Parser
 
-MONKEY = """"\
+MONKEY = """\
             __,__
    .--.  .-"     "-.  .--. 
   / .. \/  .-. .-.  \/ ..  |

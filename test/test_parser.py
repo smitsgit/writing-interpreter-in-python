@@ -1,7 +1,7 @@
 from parser import Parser
-from monkey_lexer import Lexer
-from monkey_ast import Statement, LetStatement, ReturnStatement, \
-    ExpressionStatement, Expression, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, \
+from lexer.monkey_lexer import Lexer
+from abstract.monkey_ast import Statement, LetStatement, ReturnStatement, \
+    ExpressionStatement, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, \
     FunctionLiteral, CallExpression
 import pytest
 

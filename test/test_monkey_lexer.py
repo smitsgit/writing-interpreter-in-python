@@ -1,7 +1,6 @@
-from monkey_lexer import Lexer
-from monkey_lexer import TokenTypes
-from monkey_lexer import Token
-import pytest
+from lexer.monkey_lexer import Lexer
+from lexer.monkey_lexer import TokenTypes
+from lexer.monkey_lexer import Token
 
 
 def test_lexer_returns_none_on_empty():

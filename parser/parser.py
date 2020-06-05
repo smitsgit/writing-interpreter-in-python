@@ -1,7 +1,7 @@
-from monkey_lexer import Lexer, Token, TokenTypes, TokenType
-from monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
+from lexer.monkey_lexer import Lexer, Token, TokenTypes, TokenType
+from abstract.monkey_ast import Program, LetStatement, Identifier, ReturnStatement, PrefixExpression, InfixExpression, \
     BooleanLiteral, IfExpression, BlockStatement, FunctionLiteral, CallExpression
-from monkey_ast import Expression, ExpressionStatement, IntegerLiteral
+from abstract.monkey_ast import Expression, ExpressionStatement, IntegerLiteral
 from typing import Optional, Dict, Callable
 from enum import IntEnum
 from trace_helper import TraceCalls

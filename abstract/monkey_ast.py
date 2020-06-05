@@ -1,6 +1,6 @@
 from interface import implements, Interface
 from typing import List
-from monkey_lexer import Token, TokenTypes
+from lexer.monkey_lexer import Token
 
 
 class Node(Interface):
