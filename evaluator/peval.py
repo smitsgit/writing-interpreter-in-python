@@ -44,6 +44,43 @@ def eval_prefix_expression(_op, right) -> Object:
         return singleton_mapper['NULL']
 
 
+def eval_integer_infix_expression(_op, left, right) -> Object:
+    if _op == TokenTypes.PLUS:
+        return Integer(left.value + right.value)
+    elif _op == TokenTypes.MINUS:
+        return Integer(left.value - right.value)
+    elif _op == TokenTypes.ASTERISK:
+        return Integer(left.value * right.value)
+    elif _op == TokenTypes.SLASH:
+        return Integer(left.value // right.value)
+    elif _op == TokenTypes.LT:
+        mapper_key = "TRUE" if left.value < right.value else "FALSE"
+        return singleton_mapper[mapper_key]
+    elif _op == TokenTypes.GT:
+        mapper_key = "TRUE" if left.value > right.value else "FALSE"
+        return singleton_mapper[mapper_key]
+    elif _op == TokenTypes.EQ:
+        mapper_key = "TRUE" if left.value == right.value else "FALSE"
+        return singleton_mapper[mapper_key]
+    elif _op == TokenTypes.NOT_EQ:
+        mapper_key = "TRUE" if left.value != right.value else "FALSE"
+        return singleton_mapper[mapper_key]
+    else:
+        return singleton_mapper['NULL']
+
+
+def eval_infix_expression(_op, left, right) -> Object:
+    if isinstance(left, Integer) and isinstance(right, Integer):
+        return eval_integer_infix_expression(_op, left, right)
+    elif isinstance(left, Boolean) and isinstance(right, Boolean):
+        if _op == TokenTypes.EQ:
+            return left is right
+        elif _op == TokenTypes.NOT_EQ:
+            return left is not right
+
+    return singleton_mapper['NULL']
+
+
 def eval(node: Node) -> Object:
     """
     Remember that every node defined in AST module fulfills the Node interface.
@@ -74,5 +111,10 @@ def eval(node: Node) -> Object:
     if isinstance(node, ast.PrefixExpression):
         right = eval(node._right)
         return eval_prefix_expression(node._op, right)
+
+    if isinstance(node, ast.InfixExpression):
+        left = eval(node._left)
+        right = eval(node._right)
+        return eval_infix_expression(node._op, left, right)
 
     return singleton_mapper['NULL']
