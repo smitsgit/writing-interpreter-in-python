@@ -29,9 +29,17 @@ def eval_bang_operator_expresssion(right):
         return singleton_mapper['FALSE']
 
 
+def eval_hyphen_operator_expression(right):
+    if not isinstance(right, Integer):
+        return None
+    return Integer(-right.value)
+
+
 def eval_prefix_expression(_op, right) -> Object:
     if _op == TokenTypes.BANG:
         return eval_bang_operator_expresssion(right)
+    elif _op == TokenTypes.MINUS:
+        return eval_hyphen_operator_expression(right)
     else:
         return singleton_mapper['NULL']
 

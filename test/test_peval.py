@@ -7,7 +7,9 @@ from evaluator import eval
 
 
 @pytest.mark.parametrize("input_data, expected_val", [("5;", 5),
-                                                      ("10;", 10)
+                                                      ("10;", 10),
+                                                      ("-5;", -5),
+                                                      ("-10;", -10)
                                                       ])
 def test_eval_integer_expression(input_data, expected_val):
     lexer = Lexer(input_data)
@@ -32,10 +34,12 @@ def test_eval_boolean_expression(input_data, expected_val):
     assert output.value == expected_val
 
 
-@pytest.mark.parametrize("input_data, expected_val", [("!true;", False),
+@pytest.mark.parametrize("input_data, expected_val", [
+                                                      ("!true;", False),
                                                       ("!false;", True),
                                                       ("!!true;", True),
-                                                      ("!!false;", False)
+                                                      ("!!false;", False),
+                                                      ("!5;", False)
                                                       ])
 def test_bang_operator(input_data, expected_val):
     lexer = Lexer(input_data)
