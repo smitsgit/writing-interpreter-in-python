@@ -81,6 +81,28 @@ def eval_infix_expression(_op, left, right) -> Object:
     return singleton_mapper['NULL']
 
 
+def is_truthy(condition: Object):
+    if condition is singleton_mapper['NULL']:
+        return False
+    elif condition is singleton_mapper['FALSE']:
+        return False
+    elif condition is singleton_mapper['TRUE']:
+        return True
+    else:
+        return True
+
+
+def eval_if_expression(node: ast.IfExpression):
+    condition = eval(node._condition)
+
+    if is_truthy(condition):
+        return eval(node._consequence)
+    elif node._alternative:
+        return eval(node._alternative)
+    else:
+        return singleton_mapper['NULL']
+
+
 def eval(node: Node) -> Object:
     """
     Remember that every node defined in AST module fulfills the Node interface.
@@ -116,5 +138,11 @@ def eval(node: Node) -> Object:
         left = eval(node._left)
         right = eval(node._right)
         return eval_infix_expression(node._op, left, right)
+
+    if isinstance(node, ast.BlockStatement):
+        return eval_statements(node._statements)
+
+    if isinstance(node, ast.IfExpression):
+        return eval_if_expression(node)
 
     return singleton_mapper['NULL']

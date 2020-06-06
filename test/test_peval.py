@@ -77,3 +77,27 @@ def test_bang_operator(input_data, expected_val):
 
     output = eval(program)
     assert output.value == expected_val
+
+
+@pytest.mark.parametrize("input_data, expected_output", [
+                                                ("if (true) { 10 }", 10),
+                                                ("if (false) { 10 }", "null"),
+                                                ("if (1) { 10 }", 10),
+                                                ("if (1 < 2) { 10 }", 10),
+                                                ("if (1 > 2) { 10 }", "null"),
+                                                ("if (1 > 2) { 10 } else { 20 }", 20),
+                                                ("if (1 < 2) { 10 } else { 20 }", 10),
+                                                       ])
+def test_if_else_expression(input_data, expected_output):
+    lexer = Lexer(input_data)
+    parser = Parser.new(lexer)
+    program = parser.parse()
+    check_parse_errors(parser)
+
+    output = eval(program)
+    if hasattr(output, "value"):
+        assert output.value == expected_output
+    else:
+        assert str(output) == expected_output
+
+
